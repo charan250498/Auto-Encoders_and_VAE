@@ -14,7 +14,7 @@ import imageio
 import matplotlib.image as mpimg
 from scipy import ndimage
 
-
+dataset_path = "C:\\Users\\chara\\OneDrive\\Desktop\\ML Course\\Assignment 3\\data"
 
 def scatter_plot(latent_representations, labels):
     '''
@@ -40,7 +40,7 @@ def scatter_plot(latent_representations, labels):
     plt.grid()
     plt.show()
     
-def Plot_Kernel(_model)
+def Plot_Kernel(_model):
     '''
     the plot for visualizing the learned weights of the autoencoder's encoder .
     ----------
@@ -78,9 +78,9 @@ class Autoencoder_Trainer(object):
         # load and preprocess dataset
         transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
         trainTransform  = torchvision.transforms.Compose([torchvision.transforms.ToTensor(), torchvision.transforms.Normalize((0.1307,), (0.3081,))])
-        trainset = torchvision.datasets.MNIST(root='{}/./data'.format(path_prefix),  train=True,download=True, transform=transform)
+        trainset = torchvision.datasets.MNIST(root=dataset_path,  train=True,download=True, transform=transform)
         train_loader = torch.utils.data.DataLoader(trainset, batch_size=32, shuffle=False, num_workers=4)
-        valset = torchvision.datasets.MNIST(root='{}/./data'.format(path_prefix), train=False, download=True, transform=transform)
+        valset = torchvision.datasets.MNIST(root=dataset_path, train=False, download=True, transform=transform)
         val_loader = torch.utils.data.DataLoader(valset, batch_size=32, shuffle=False, num_workers=4)
 
         self.train_loader = train_loader
