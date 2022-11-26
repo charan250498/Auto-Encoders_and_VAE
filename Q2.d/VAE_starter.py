@@ -62,14 +62,14 @@ def display_images_in_a_row(images,file_path='./tmp.png', display=True):
 
 
 # Defining Model
-class Autoencoder_Trainer(object):
+class VAE_Trainer(object):
     '''
     The trainer for
     '''
-    def __init__(self, autoencoder_model, learning_rate=1e-3, path_prefix = ""):
+    def __init__(self, VAE_model, learning_rate=1e-3, path_prefix = ""):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.init_dataset(path_prefix)
-        self.model = autoencoder_model
+        self.model = VAE_model
         self.model.to(self.device)
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate, weight_decay=1e-5)
 
@@ -93,7 +93,7 @@ class Autoencoder_Trainer(object):
         # KLD term should be added to the final Loss.
         
         BCE = F.mse_loss(recon_x, x)
-        Loss = BCE
+        Loss = BCE + F.kl_div(recon_x, x)
         return Loss
 	
     def get_train_set(self):
@@ -105,7 +105,7 @@ class Autoencoder_Trainer(object):
         return images
     
     def train(self, epoch):
-        # Note that you need to modify both trainer and loss_function for the VAE model
+        # Note that you need to modify both trainer and loss_function for the VAE model #######################################
         self.model.train()
         train_loss = 0
         for batch_idx, (data, _) in tqdm(enumerate(self.train_loader), total=len(self.train_loader) ) :
