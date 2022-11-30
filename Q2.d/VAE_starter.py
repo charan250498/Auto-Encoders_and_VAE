@@ -88,12 +88,13 @@ class VAE_Trainer(object):
         self.valset = valset
         self.trainset = trainset
 
-    def loss_function(self, recon_x, x):
+    def loss_function(self, recon_x, x, mean , var):
         # Note that this function should be modified for the VAE part.
         # KLD term should be added to the final Loss.
-        
+        weight = 0.5
         BCE = F.mse_loss(recon_x, x)
-        Loss = BCE + F.kl_div(recon_x, x)
+        KLD = -1 * torch.sum(1 + var - mean.pow(2) - var.exp())
+        Loss = BCE + weight * KLD
         return Loss
 	
     def get_train_set(self):
@@ -111,8 +112,8 @@ class VAE_Trainer(object):
         for batch_idx, (data, _) in tqdm(enumerate(self.train_loader), total=len(self.train_loader) ) :
             data = data.to(self.device)
             self.optimizer.zero_grad()
-            recon_batch = self.model(data)
-            loss = self.loss_function(recon_batch, data)
+            recon_batch, mean , var = self.model(data)
+            loss = self.loss_function(recon_batch, data, mean, var)
             loss.backward()
             train_loss += loss.item()
             self.optimizer.step()
@@ -127,8 +128,8 @@ class VAE_Trainer(object):
         with torch.no_grad():
             for i, (data, _) in tqdm(enumerate(self.val_loader), total=len(self.val_loader)):
                 data = data.to(self.device)
-                recon_batch = self.model(data)
-                val_loss += self.loss_function(recon_batch, data).item()
+                recon_batch, mean, var = self.model(data)
+                val_loss += self.loss_function(recon_batch, data, mean, var).item()
 
         val_loss /= len(self.val_loader.dataset)/32 # 32 is the batch size
         print('====> Val set loss (reconstruction error) : {:.4f}'.format(val_loss))
